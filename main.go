@@ -4,11 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/rainkid/dogo"
+	spider "github.com/rainkid/spider"
 	"os"
 	"path"
 )
 
-var cfgdir = flag.String("c", "", "please input build dir with")
+var (
+	cfgdir = flag.String("c", "", "please input build dir with")
+)
 
 func main() {
 	flag.Parse()
@@ -23,6 +26,9 @@ func main() {
 			dogo.Loger.Println("run time panic: ", err)
 		}
 	}()
+
+	//start spider daemon and  proxy daemon
+	spider.Start()
 
 	router := getRouter()
 	app_ini := fmt.Sprintf("%s/app.ini", *cfgdir)

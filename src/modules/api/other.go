@@ -1,9 +1,5 @@
 package api
 
-import (
-	spider "libs/spider"
-)
-
 type Other struct {
 	ApiBase
 }
@@ -19,8 +15,7 @@ func (c *Other) Get() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	sp := spider.Start()
 
-	sp.Add("Other", id, callback)
+	spiderServ.Add("Other", id, callback)
 	c.Json(0, "success", "success")
 }

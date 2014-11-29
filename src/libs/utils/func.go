@@ -35,7 +35,8 @@ func GetConfig(filename string, name string) string {
 }
 
 func Env() string {
-	inipath := dogo.Register.Get("app_ini")
+	inipath := fmt.Sprintf("%s", dogo.Register.Get("app_ini"))
+	loger.Println(inipath)
 	config, err := dogo.NewConfig(inipath)
 	if err != nil {
 		loger.Print(err.Error())

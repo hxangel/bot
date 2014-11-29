@@ -1,9 +1,8 @@
 package api
 
 import (
-	spider "libs/spider"
-	// "net/url"
-	// "fmt"
+// "net/url"
+// "fmt"
 )
 
 type Tmall struct {
@@ -33,8 +32,8 @@ func (c *Tmall) Item() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	sp := spider.Start()
-	sp.Add("TmallItem", id, callback)
+
+	spiderServ.Add("TmallItem", id, callback)
 	c.Json(0, "success", "success")
 }
 
@@ -49,8 +48,7 @@ func (c *Tmall) Shop() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	sp := spider.Start()
 
-	sp.Add("TmallShop", id, callback)
+	spiderServ.Add("TmallShop", id, callback)
 	c.Json(0, "success", "success")
 }

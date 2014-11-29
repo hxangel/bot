@@ -2,7 +2,7 @@ package api
 
 import (
 	"fmt"
-	spider "libs/spider"
+	spider "github.com/rainkid/spider"
 )
 
 type Taobao struct {
@@ -20,9 +20,24 @@ func (c *Taobao) Item() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	sp := spider.Start()
 
-	sp.Add("TaobaoItem", id, callback)
+	spiderServ.Add("TaobaoItem", id, callback)
+	c.Json(0, "success", "success")
+}
+
+func (c *Taobao) Shop() {
+	id := c.GetInput("id")
+	callback := c.GetInput("callback")
+	if id == "" {
+		c.Json(-1, "with empty id", "")
+		return
+	}
+	if callback == "" {
+		c.Json(-1, "with empty callback", "")
+		return
+	}
+
+	spiderServ.Add("TaobaoShop", id, callback)
 	c.Json(0, "success", "success")
 }
 
@@ -108,21 +123,4 @@ func (c *Taobao) Samestyle() {
 		result = append(result, data)
 	}
 	c.Json(0, "success", result)
-}
-
-func (c *Taobao) Shop() {
-	id := c.GetInput("id")
-	callback := c.GetInput("callback")
-	if id == "" {
-		c.Json(-1, "with empty id", "")
-		return
-	}
-	if callback == "" {
-		c.Json(-1, "with empty callback", "")
-		return
-	}
-	sp := spider.Start()
-
-	sp.Add("TaobaoShop", id, callback)
-	c.Json(0, "success", "success")
 }

@@ -1,7 +1,13 @@
 package api
 
 import (
+	// "fmt"
 	"github.com/rainkid/dogo"
+	spider "github.com/rainkid/spider"
+)
+
+var (
+	spiderServ *spider.Spider
 )
 
 type ApiBase struct {
@@ -10,4 +16,5 @@ type ApiBase struct {
 
 func (c *ApiBase) Init() {
 	c.DisableView = true
+	spiderServ = spider.SpiderServer
 }

@@ -1,1 +1,1 @@
-a go web sample with dogo
+a go api sample with dogo
