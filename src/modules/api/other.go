@@ -1,13 +1,17 @@
 package api
 
+import (
+	"net/url"
+)
+
 type Other struct {
 	ApiBase
 }
 
 func (c *Other) Get() {
-	id := c.GetInput("url")
+	urlStr := c.GetInput("url")
 	callback := c.GetInput("callback")
-	if id == "" {
+	if urlStr == "" {
 		c.Json(-1, "with empty url", "")
 		return
 	}
@@ -15,7 +19,7 @@ func (c *Other) Get() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-
-	spiderServ.Add("Other", id, callback)
+	urlRel, _ := url.QueryUnescape(urlStr)
+	spiderServ.Add("Other", urlRel, callback)
 	c.Json(0, "success", "success")
 }
