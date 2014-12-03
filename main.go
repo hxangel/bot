@@ -29,6 +29,7 @@ func main() {
 
 	//start spider daemon and  proxy daemon
 	spider.Start()
+	spider.StartProxy()
 
 	router := getRouter()
 	app_ini := fmt.Sprintf("%s/app.ini", *cfgdir)

@@ -7,6 +7,7 @@ import (
 )
 
 func AddSampleRoute(router *dogo.Router) {
+	router.AddSampleRoute("api", &api.Jd{})
 	router.AddSampleRoute("api", &api.Mmb{})
 	router.AddSampleRoute("api", &api.Other{})
 	router.AddSampleRoute("api", &api.Taobao{})
