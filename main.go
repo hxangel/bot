@@ -7,6 +7,7 @@ import (
 	spider "github.com/rainkid/spider"
 	"os"
 	"path"
+	"runtime"
 )
 
 var (
@@ -37,6 +38,8 @@ func main() {
 	dogo.Register.Set("app_ini", app_ini)
 	dogo.Register.Set("cfg_path", *cfgdir)
 
+	runtime.GOMAXPROCS(runtime.NumCPU() - 1)
+
 	// bootstrap and return a app
 	app := dogo.NewApp(app_ini)
 	//Bootstrap and run
@@ -53,9 +56,5 @@ func getRouter() *dogo.Router {
 
 	//add sample route
 	AddSampleRoute(router)
-
-	//add regex router and default is sample route
-	// router.AddRegexRoute("/", "/admin/login/index")
-
 	return router
 }

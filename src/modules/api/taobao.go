@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	spider "github.com/rainkid/spider"
+	"time"
 )
 
 type Taobao struct {
@@ -21,7 +22,7 @@ func (c *Taobao) Item() {
 		return
 	}
 
-	spiderServ.Add("TaobaoItem", id, callback)
+	spiderServ.Add("TaobaoItem", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }
 
@@ -37,7 +38,7 @@ func (c *Taobao) Shop() {
 		return
 	}
 
-	spiderServ.Add("TaobaoShop", id, callback)
+	spiderServ.Add("TaobaoShop", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }
 
@@ -57,70 +58,68 @@ func (c *Taobao) Samestyle() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-
-	surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
-	fmt.Println(surl)
-	sloader := spider.NewLoader(surl, "Get").WithPcAgent()
-	scontent, _ := sloader.Send(nil)
-
-	shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
-	sret := shp.Partten(`"nid":"` + id + `","pid":"-(\d+)"`).FindStringSubmatch()
-	if sret == nil || len(sret) == 0 {
-		c.Json(-1, "fail", "")
+	pid := c.getUnipid(id, title)
+	if pid != nil {
+		spiderServ.Add("SampleGoods", map[string]string{"callback": callback, "id": id, "pid": string(pid)})
+		c.Json(0, "success", string(pid))
+		return
 	}
-	pid := sret[1]
+	c.Json(-1, "fail", nil)
+	return
+}
 
-	var result []map[string]string
-	url := fmt.Sprintf("http://s.taobao.com/list?tab=all&type=samestyle&uniqpid=-%s&app=i2i&nid=%s", pid, id)
-	fmt.Println(url)
-	loader := spider.NewLoader(url, "Get").WithPcAgent()
-	content, _ := loader.Send(nil)
+func (c *Taobao) getUnipid(id, title string) []byte {
+	var (
+		pid           []byte
+		precessed     int = 0   //已经完成进程数
+		processNum    int = 3   //开启进程数
+		timeOut       int = 300 //接口超时设置
+		dataPrecessNo int = 0   //获取到进程的进程编号
+	)
+	for i := 1; i <= processNum; i++ {
+		fmt.Println("start thread", i, "with get unipid.")
+		go func(i int) {
+			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
+			if pid != nil {
+				fmt.Println(fmt.Sprintf("the pid-%d process cancel to load data", i))
+				return
+			}
+			sloader := spider.NewLoader(surl, "Get").WithPcAgent()
+			scontent, _ := sloader.Send(nil)
 
-	hp := spider.NewHtmlParse().LoadData(content).Replace().Convert()
-	ret := hp.FindByAttr("div", "class", "row item icon-datalink")
-
-	l := len(ret) - 1
-	if l <= 0 {
-		c.Json(-1, "fail", result)
+			if pid != nil {
+				fmt.Println(fmt.Sprintf("the pid-%d process cancel to parse data", i))
+				return
+			}
+			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
+			ret := shp.Partten(`"nid":"` + id + `","pid":"-(\d+)"`).FindStringSubmatch()
+			if ret != nil && len(ret) > 0 {
+				pid = ret[1]
+				dataPrecessNo = i
+			}
+			precessed += 1
+			return
+		}(i)
 	}
-	for i := 1; i < l; i++ {
-		data := map[string]string{"comment_num": "0", "pay_num": "0"}
-		val := ret[i][1]
-		hp1 := spider.NewHtmlParse().LoadData(val)
-
-		id := hp1.Partten(`(?U)data-item="(\d+)"`).FindStringSubmatch()
-		data["id"] = fmt.Sprintf("%s", id[1])
-
-		price := hp1.Partten(`(?U)<i>￥</i>(.*)</span>`).FindStringSubmatch()
-		data["price"] = fmt.Sprintf("%s", price[1])
-
-		imgs := hp1.Partten(`(?U)data-ks-lazyload="(.*)"`).FindStringSubmatch()
-		data["img"] = fmt.Sprintf("%s", imgs[1])
-
-		title := hp1.Partten(`(?U)title="(.*)"`).FindStringSubmatch()
-		data["title"] = fmt.Sprintf("%s", title[1])
-
-		address := hp1.Partten(`(?U)<div class="seller-loc">(.*)</div>`).FindStringSubmatch()
-		data["address"] = fmt.Sprintf("%s", address[1])
-
-		pay_num := hp1.Partten(`(?U)(\d+) 人付款`).FindStringSubmatch()
-		if pay_num != nil {
-			data["pay_num"] = fmt.Sprintf("%s", pay_num[1])
-		}
-
-		comment_num := hp1.Partten(`(?U)(\d+) 条评论`).FindStringSubmatch()
-		if comment_num != nil {
-			data["comment_num"] = fmt.Sprintf("%s", comment_num[1])
-		}
-
-		score := hp1.Partten(`(?U)<span class="feature-dsr-num">(.*)</span>`).FindStringSubmatch()
-		if comment_num != nil {
-			data["score"] = fmt.Sprintf("%s", score[1])
-		}
-		if i == 6 {
+	var wait int = 0
+	fmt.Println("star wiat pid")
+	for {
+		if pid != nil {
+			fmt.Println(fmt.Sprintf("the pid-%d process finished get unipid :%s.", dataPrecessNo, pid))
 			break
 		}
-		result = append(result, data)
+		//超过5秒
+		if wait == timeOut {
+			fmt.Println("get unipid timeout.")
+			break
+		}
+		//如果进程都已经完成并且没有拉取到数据
+		if precessed == processNum {
+			fmt.Println(fmt.Sprintf("%d thread finish and not found unipid.", processNum))
+			break
+		}
+		time.Sleep(time.Second / 60)
+		wait++
 	}
-	c.Json(0, "success", result)
+	return pid
 }

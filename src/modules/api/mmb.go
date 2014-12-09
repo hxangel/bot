@@ -7,6 +7,7 @@ type Mmb struct {
 func (c *Mmb) Item() {
 	id := c.GetInput("id")
 	callback := c.GetInput("callback")
+
 	if id == "" {
 		c.Json(-1, "with empty id", "")
 		return
@@ -15,6 +16,6 @@ func (c *Mmb) Item() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	spiderServ.Add("MmbItem", id, callback)
+	spiderServ.Add("MmbItem", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }

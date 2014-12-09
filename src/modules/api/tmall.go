@@ -33,7 +33,7 @@ func (c *Tmall) Item() {
 		return
 	}
 
-	spiderServ.Add("TmallItem", id, callback)
+	spiderServ.Add("TmallItem", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }
 
@@ -49,6 +49,6 @@ func (c *Tmall) Shop() {
 		return
 	}
 
-	spiderServ.Add("TmallShop", id, callback)
+	spiderServ.Add("TmallShop", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }

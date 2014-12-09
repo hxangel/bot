@@ -19,7 +19,7 @@ func (c *Other) Get() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	urlRel, _ := url.QueryUnescape(urlStr)
-	spiderServ.Add("Other", urlRel, callback)
+	link, _ := url.QueryUnescape(urlStr)
+	spiderServ.Add("Other", map[string]string{"link": link, "callback": callback})
 	c.Json(0, "success", "success")
 }
