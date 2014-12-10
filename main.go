@@ -12,6 +12,7 @@ import (
 
 var (
 	cfgdir = flag.String("c", "", "please input build dir with")
+	Loger  = dogo.NewLoger()
 )
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 
 	defer func() {
 		if err := recover(); err != nil {
-			dogo.Loger.Println("run time panic: ", err)
+			Loger.E("run time panic: ", err)
 		}
 	}()
 
