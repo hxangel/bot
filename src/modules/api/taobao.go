@@ -60,7 +60,7 @@ func (c *Taobao) Samestyle() {
 	}
 	pid := c.getUnipid(id, title)
 	if pid != nil {
-		spiderServ.Add("SampleGoods", map[string]string{"callback": callback, "id": id, "pid": string(pid)})
+		spiderServ.Add("SameStyle", map[string]string{"callback": callback, "id": id, "pid": string(pid)})
 		c.Json(0, "success", string(pid))
 		return
 	}
@@ -73,22 +73,17 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 		pid           []byte
 		precessed     int = 0   //已经完成进程数
 		processNum    int = 3   //开启进程数
-		timeOut       int = 300 //接口超时设置
+		timeOut       int = 600 //接口超时设置
 		dataPrecessNo int = 0   //获取到进程的进程编号
 	)
 	for i := 1; i <= processNum; i++ {
-		fmt.Println("start thread", i, "with get unipid.")
 		go func(i int) {
 			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
-			if pid != nil {
-				fmt.Println(fmt.Sprintf("the pid-%d process cancel to load data", i))
-				return
-			}
 			sloader := spider.NewLoader(surl, "Get").WithPcAgent()
 			scontent, _ := sloader.Send(nil)
 
 			if pid != nil {
-				fmt.Println(fmt.Sprintf("the pid-%d process cancel to parse data", i))
+				Loger.W(fmt.Sprintf("The pid-%d process cancel to parse data", i))
 				return
 			}
 			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
@@ -97,25 +92,25 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 				pid = ret[1]
 				dataPrecessNo = i
 			}
+			Loger.I("The process finished is pid-", i)
 			precessed += 1
 			return
 		}(i)
 	}
 	var wait int = 0
-	fmt.Println("star wiat pid")
 	for {
 		if pid != nil {
-			fmt.Println(fmt.Sprintf("the pid-%d process finished get unipid :%s.", dataPrecessNo, pid))
+			Loger.I(fmt.Sprintf("The pid-%d process finished and get unipid :%s.", dataPrecessNo, pid))
 			break
 		}
 		//超过5秒
 		if wait == timeOut {
-			fmt.Println("get unipid timeout.")
+			Loger.E("Get unipid timeout with item id", id)
 			break
 		}
 		//如果进程都已经完成并且没有拉取到数据
 		if precessed == processNum {
-			fmt.Println(fmt.Sprintf("%d thread finish and not found unipid.", processNum))
+			Loger.E(fmt.Sprintf("%d process finished and not found unipid.", processNum))
 			break
 		}
 		time.Sleep(time.Second / 60)

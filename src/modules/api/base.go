@@ -8,6 +8,7 @@ import (
 
 var (
 	spiderServ *spider.Spider
+	Loger      = dogo.NewLoger()
 )
 
 type ApiBase struct {
