@@ -121,7 +121,7 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 		wait++
 	}
 	if bytes.Equal(samestyle, []byte("true")) == false {
-		Loger.E("The id:", id, "pid:", pid, "has none samestyle goods")
+		Loger.E("The id:", id, "pid:", string(pid), "has none samestyle goods")
 		return nil
 	}
 	return pid
