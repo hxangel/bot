@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"fmt"
 	spider "github.com/rainkid/spider"
 	"time"
@@ -72,7 +71,6 @@ func (c *Taobao) Samestyle() {
 func (c *Taobao) getUnipid(id, title string) []byte {
 	var (
 		pid           []byte
-		samestyle     []byte
 		precessed     int = 0   //已经完成进程数
 		processNum    int = 3   //开启进程数
 		timeOut       int = 600 //接口超时设置
@@ -90,10 +88,9 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 				return
 			}
 			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
-			ret := shp.Partten(`(?U)"nid":"` + id + `","pid":"-(\d+)".*"samestyle":(.*),"similar"`).FindStringSubmatch()
+			ret := shp.Partten(`(?U)"samestyle":{"url":".*uniqpid=-(\d+)&nid=` + id + `"}`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
 				pid = ret[1]
-				samestyle = ret[2]
 				dataPrecessNo = i
 			}
 			Loger.I("The process finished is pid-", i)
@@ -103,7 +100,7 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 	}
 	var wait int = 0
 	for {
-		if pid != nil && samestyle != nil {
+		if pid != nil {
 			Loger.I(fmt.Sprintf("The pid-%d process finished and get unipid :%s.", dataPrecessNo, pid))
 			break
 		}
@@ -119,10 +116,6 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 		}
 		time.Sleep(time.Second / 60)
 		wait++
-	}
-	if bytes.Equal(samestyle, []byte("true")) == false {
-		Loger.E("The id:", id, "pid:", string(pid), "has none samestyle goods")
-		return nil
 	}
 	return pid
 }
