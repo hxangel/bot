@@ -1,1 +1,0 @@
-src/github.com/rainkid/dogo/tool/tool

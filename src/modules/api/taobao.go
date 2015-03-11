@@ -79,14 +79,15 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 	Loger.D("Get unipid for", id, title)
 	for i := 1; i <= processNum; i++ {
 		go func(i int) {
-			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
-			sloader := spider.NewLoader(surl, "Get").WithPcAgent()
-			scontent, _ := sloader.Send(nil)
-
 			if pid != nil {
 				Loger.W(fmt.Sprintf("The pid-%d process cancel to parse data", i))
 				return
 			}
+			
+			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
+			sloader := spider.NewLoader(surl, "Get").WithPcAgent()
+			scontent, _ := sloader.Send(nil)
+			
 			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
 			ret := shp.Partten(`(?U)"samestyle":{"url":".*uniqpid=-(\d+)&nid=` + id + `"}`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
