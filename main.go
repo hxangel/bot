@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/rainkid/dogo"
 	spider "github.com/rainkid/spider"
 	"os"
@@ -11,17 +10,13 @@ import (
 )
 
 var (
-	cfgdir = flag.String("c", "", "please input build dir with")
+	host = flag.String("h", "127.0.0.1", "hostname for app runtime")
+	port = flag.String("p", "8090", "port for app runtime")
 	Loger  = dogo.NewLoger()
 )
 
 func main() {
 	flag.Parse()
-	l := len(*cfgdir)
-	if l == 0 {
-		fmt.Println("please input build dir with -c")
-		os.Exit(0)
-	}
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -34,15 +29,11 @@ func main() {
 	spider.StartProxy()
 
 	router := getRouter()
-	app_ini := fmt.Sprintf("%s/app.ini", *cfgdir)
-
-	dogo.Register.Set("app_ini", app_ini)
-	dogo.Register.Set("cfg_path", *cfgdir)
 
 	runtime.GOMAXPROCS(runtime.NumCPU() - 1)
 
 	// bootstrap and return a app
-	app := dogo.NewApp(app_ini)
+	app := dogo.NewApp(*host, *port)
 	//Bootstrap and run
 	app.Bootstrap(router).SetDefaultModule("api").Run()
 }
