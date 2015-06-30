@@ -3,6 +3,7 @@ package debug
 import (
 	"github.com/rainkid/dogo"
 	"net/http/pprof"
+
 )
 
 type Pprof struct {
@@ -12,3 +13,5 @@ type Pprof struct {
 func (c *Pprof) Index() {
 	pprof.Index(c.GetResponse(), c.GetRequest())
 }
+
+

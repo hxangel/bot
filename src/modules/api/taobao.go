@@ -85,10 +85,15 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 			}
 			
 			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
-			sloader := spider.NewLoader(surl, "Get").WithPcAgent()
-			scontent, _ := sloader.Send(nil)
+			loader:= spider.NewLoader()
+
+			content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
+			mcontent := make([]byte, len(content))
+			copy(mcontent, content)
 			
-			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
+			htmlParser := spider.NewHtmlParser()
+
+			shp := htmlParser.LoadData(mcontent).Replace().Convert()
 			ret := shp.Partten(`(?U)"nid":"`+id+`","category":"\d+","pid":"-(\d+)"`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
 				pid = ret[1]
