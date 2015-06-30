@@ -91,7 +91,7 @@ func (c *Taobao) getUnipid(id, title string) []byte {
             mcontent := make([]byte, len(content))
             copy(mcontent, content)
 			
-			shp := spider.NewHtmlParse().LoadData(scontent).Replace().Convert()
+			shp := spider.NewHtmlParser().LoadData(scontent).Replace().Convert()
 			ret := shp.Partten(`(?U)"nid":"`+id+`","category":"\d+","pid":"-(\d+)"`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
 				pid = ret[1]
