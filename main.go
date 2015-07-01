@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	host = flag.String("h", "127.0.0.1", "hostname for app runtime")
+	host = flag.String("h", "0.0.0.0", "hostname for app runtime")
 	port = flag.String("p", "8090", "port for app runtime")
 	Loger  = dogo.NewLoger()
 )
