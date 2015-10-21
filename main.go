@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"configs"
 )
 
 var (
@@ -47,6 +48,6 @@ func getRouter() *dogo.Router {
 	router.AddStaticRoute("/statics", path.Join(basepath, "src/statics/"))
 
 	//add sample route
-	AddSampleRoute(router)
+	configs.AddSampleRoute(router)
 	return router
 }
