@@ -1,6 +1,6 @@
 a go api sample with dogo
 ```
-	#!/bin/sh
+  #!/bin/sh
   rm -rf src/github.com/rainkid/spider
   rm -rf src/github.com/rainkid/dogo
   rm -rf src/github.com/qiniu/iconv

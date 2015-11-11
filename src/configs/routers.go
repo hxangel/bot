@@ -1,4 +1,4 @@
-package main
+package configs
 
 import (
 	"github.com/rainkid/dogo"
