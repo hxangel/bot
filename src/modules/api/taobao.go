@@ -44,31 +44,37 @@ func (c *Taobao) Shop() {
 
 func (c *Taobao) Samestyle() {
 	id := c.GetInput("id")
+	pid := c.GetInput("pid")
 	callback := c.GetInput("callback")
 	title := c.GetInput("title")
 	if id == "" {
 		c.Json(-1, "with empty id", "")
 		return
 	}
-	if title == "" {
-		c.Json(-1, "with empty title", "")
-		return
-	}
+
 	if callback == "" {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-	pid := c.getUnipid(id, title)
-	if pid != nil {
-		spiderServ.Add("SameStyle", map[string]string{"callback": callback, "id": id, "pid": string(pid)})
-		c.Json(0, "success", string(pid))
+
+	if pid == "" {
+		if title == "" {
+			c.Json(-1, "with empty title", "")
+			return
+		}
+		pid = c.getUnipid(id, title)
+	}
+	Loger.I("The process finished is pid-", pid)
+	if pid != "" {
+		spiderServ.Add("SameStyle", map[string]string{"callback": callback, "id": id, "pid": pid})
+		c.Json(0, "success", pid)
 		return
 	}
 	c.Json(-1, "fail", nil)
 	return
 }
 
-func (c *Taobao) getUnipid(id, title string) []byte {
+func (c *Taobao) getUnipid(id, title string) string {
 	var (
 		pid           []byte
 		precessed     int = 0   //已经完成进程数
@@ -84,14 +90,13 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 				return
 			}
 			
-			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
+			surl := fmt.Sprintf("https://s.taobao.com/search?q=%s", title)
             loader:= spider.NewLoader()
-
             content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
             mcontent := make([]byte, len(content))
             copy(mcontent, content)
 			
-			shp := spider.NewHtmlParser().LoadData(mcontent).Replace().Convert()
+			shp := spider.NewHtmlParser().LoadData(mcontent)
 			ret := shp.Partten(`(?U)"nid":"`+id+`","category":"\d+","pid":"-(\d+)"`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
 				pid = ret[1]
@@ -121,5 +126,5 @@ func (c *Taobao) getUnipid(id, title string) []byte {
 		time.Sleep(time.Second / 60)
 		wait++
 	}
-	return pid
+	return string(pid)
 }
