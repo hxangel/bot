@@ -7,6 +7,7 @@ type Same struct {
 func (c *Same) Item() {
 	id       := c.GetInput("id")
 	channel  := c.GetInput("channel")
+	title    := c.GetInput("title")
 	callback := c.GetInput("callback")
 	if id == "" {
 		c.Json(-1, "with empty id", "")
@@ -20,7 +21,11 @@ func (c *Same) Item() {
 		c.Json(-1, "with empty channel", "")
 		return
 	}
-	spiderServ.Add("same", map[string]string{"id": id, "channel":channel, "callback": callback})
+	if title == "" {
+		c.Json(-1, "with empty title", "")
+		return
+	}
+	spiderServ.Add("same", map[string]string{"id": id, "channel":channel,"title":title, "callback": callback})
 	c.Json(0, "success", "success")
 }
 

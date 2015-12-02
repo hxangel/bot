@@ -57,7 +57,7 @@ func (c *Taobao) Samestyle() {
 		return
 	}
 
-	if pid == "" {
+	if pid == "" ||pid =="0"{
 		if title == "" {
 			c.Json(-1, "with empty title", "")
 			return
@@ -65,7 +65,7 @@ func (c *Taobao) Samestyle() {
 		pid = c.getUnipid(id, title)
 	}
 	Loger.I("The process finished is pid-", pid)
-	if pid != "" {
+	if pid != ""&& pid !="0" {
 		spiderServ.Add("SameStyle", map[string]string{"callback": callback, "id": id, "pid": pid})
 		c.Json(0, "success", pid)
 		return
@@ -90,13 +90,14 @@ func (c *Taobao) getUnipid(id, title string) string {
 				return
 			}
 			
-			surl := fmt.Sprintf("https://s.taobao.com/search?q=%s", title)
+			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
             loader:= spider.NewLoader()
             content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
             mcontent := make([]byte, len(content))
             copy(mcontent, content)
-			
+
 			shp := spider.NewHtmlParser().LoadData(mcontent)
+
 			ret := shp.Partten(`(?U)"nid":"`+id+`","category":"\d+","pid":"-(\d+)"`).FindStringSubmatch()
 			if ret != nil && len(ret) > 0 {
 				pid = ret[1]
