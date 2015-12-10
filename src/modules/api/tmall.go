@@ -52,3 +52,19 @@ func (c *Tmall) Shop() {
 	spiderServ.Add("TmallShop", map[string]string{"id": id, "callback": callback})
 	c.Json(0, "success", "success")
 }
+
+func (c *Tmall) Search() {
+	title := c.GetInput("title")
+	callback := c.GetInput("callback")
+	if title == "" {
+		c.Json(-1, "with empty title", "")
+		return
+	}
+	if callback == "" {
+		c.Json(-1, "with empty callback", "")
+		return
+	}
+
+	spiderServ.Add("TmallSearch", map[string]string{"title":title, "callback": callback})
+	c.Json(0, "success", "success")
+}
