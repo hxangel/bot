@@ -92,7 +92,7 @@ func (c *Taobao) getUnipid(id, title string) string {
 			
 			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
             loader:= spider.NewLoader()
-            content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
+            _, content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
             mcontent := make([]byte, len(content))
             copy(mcontent, content)
 
