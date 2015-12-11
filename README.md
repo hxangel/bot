@@ -1,4 +1,4 @@
-a go api sample with dogo
+a go api sample with dogo!
 ```
   #!/bin/sh
   rm -rf src/github.com/rainkid/spider
