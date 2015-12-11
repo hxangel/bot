@@ -4,6 +4,8 @@ import (
 	"fmt"
 	spider "github.com/rainkid/spider"
 	"time"
+	"net/http"
+	"io/ioutil"
 )
 
 type Taobao struct {
@@ -89,12 +91,22 @@ func (c *Taobao) getUnipid(id, title string) string {
 				Loger.W(fmt.Sprintf("The pid-%d process cancel to parse data", i))
 				return
 			}
-			
-			surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
-            loader:= spider.NewLoader()
-            _, content, _  := loader.WithPcAgent().Send(surl, "Get", nil)
-            mcontent := make([]byte, len(content))
-            copy(mcontent, content)
+
+//			surl := fmt.Sprintf("https://s.taobao.com/search?q=%s", url.QueryEscape(title))
+			surl := fmt.Sprintf("https://s.taobao.com/search?q=%s", title)
+			resp, err := http.Get(surl)
+			if err != nil {
+				// handle error
+			}
+
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				Loger.I("The process Error is pid-", i)
+				return
+			}
+			mcontent :=make([]byte,len(body))
+			copy(mcontent, body)
 
 			shp := spider.NewHtmlParser().LoadData(mcontent)
 
