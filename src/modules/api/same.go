@@ -25,22 +25,8 @@ func (c *Same) Item() {
 		c.Json(-1, "with empty title", "")
 		return
 	}
-	spiderServ.Add("same", map[string]string{"id": id, "channel":channel,"title":title, "callback": callback})
-	c.Json(0, "success", "success")
-}
-
-func (c *Same) Shop() {
-	id := c.GetInput("id")
-	callback := c.GetInput("callback")
-	if id == "" {
-		c.Json(-1, "with empty id", "")
-		return
-	}
-	if callback == "" {
-		c.Json(-1, "with empty callback", "")
-		return
-	}
-
-	spiderServ.Add("JdShop", map[string]string{"id": id, "callback": callback})
+	go func() {
+		spiderServ.Add("Same", map[string]string{"id": id, "channel":channel,"title":title, "callback": callback})
+	}()
 	c.Json(0, "success", "success")
 }
