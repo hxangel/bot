@@ -57,19 +57,39 @@ func (c *Taobao) Samestyle() {
 		c.Json(-1, "with empty callback", "")
 		return
 	}
-
-	go c.getUnipid(pid, id, title, callback)
-
+	spiderServ.Add("AliSame", map[string]string{"callback": callback, "id": id, "pid": pid, "title":title})
 	c.Json(-1, "success", nil)
 	return
 }
+
+
+func (c *Taobao) SamestylePlus() {
+	id := c.GetInput("id")
+	pid := c.GetInput("pid")
+	callback := c.GetInput("callback")
+	title := c.GetInput("title")
+	if id == "" {
+		c.Json(-1, "with empty id", "")
+		return
+	}
+
+	if callback == "" {
+		c.Json(-1, "with empty callback", "")
+		return
+	}
+
+	go c.getUnipid(pid, id, title, callback)
+	c.Json(-1, "success", nil)
+	return
+}
+
 
 func (c *Taobao) getUnipid(pid, id, title, callback string)  {
 	if pid == "" ||pid =="0"{
 		surl := fmt.Sprintf("http://s.taobao.com/search?q=%s", title)
 		resp, err := http.Get(surl)
 		if err != nil {
-			// handle error
+			Loger.I(err)
 		}
 
 		defer resp.Body.Close()
@@ -80,7 +100,7 @@ func (c *Taobao) getUnipid(pid, id, title, callback string)  {
 		}
 		mcontent :=make([]byte,len(body))
 		copy(mcontent, body)
-
+		fmt.Println(body)
 		shp := spider.NewHtmlParser().LoadData(mcontent)
 
 		ret := shp.Partten(`(?U)"nid":"`+id+`","category":"\d+","pid":"-(\d+)"`).FindStringSubmatch()
@@ -89,6 +109,7 @@ func (c *Taobao) getUnipid(pid, id, title, callback string)  {
 		}
 	}
 	if pid == "" ||pid =="0"{
+		Loger.E("Get taobao same style error")
 		return
 	}
 	spiderServ.Add("SameStyle", map[string]string{"callback": callback, "id": id, "pid": pid})
