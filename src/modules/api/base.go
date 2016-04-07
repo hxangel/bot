@@ -4,6 +4,7 @@ import (
 	// "fmt"
 	"github.com/rainkid/dogo"
 	spider "github.com/rainkid/spider"
+	"fmt"
 )
 
 var (
@@ -18,4 +19,7 @@ type ApiBase struct {
 func (c *ApiBase) Init() {
 	c.DisableView = true
 	spiderServ = spider.SpiderServer
+	req := c.Context.Request
+	url := fmt.Sprintf("Request [http://%s%s]", req.Host, req.URL)
+	Loger.I(url)
 }
